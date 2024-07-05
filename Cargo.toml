@@ -1,0 +1,31 @@
+[package]
+name = "config_converter"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# [workspace]
+# members = ["config_transformer"]
+
+# [profile.dev]
+# rustflags = ["-Dwarnings"]
+
+# [profile.release]
+# rustflags = ["-Dwarnings"]
+
+# [features]
+# clippy = ["clippy"]
+
+[dependencies]
+toml = "0.8.14"
+clap = { version = "4.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+serde_yaml = "0.8"
+strum_macros = "0.26"
+
+[dev-dependencies]
+tempfile = "3.3"
