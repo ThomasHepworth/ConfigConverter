@@ -1,0 +1,32 @@
+# Turn on pedantic lints, which are more stringent and cover more cases.
+warn = [
+    "clippy::pedantic"
+]
+
+# Turn on nursery lints, which are new lints that may not be as stable.
+warn = [
+    "clippy::nursery"
+]
+
+allow = [
+    "clippy::module_name_repetitions",  # Allow module name repetitions
+    "clippy::too_many_lines",           # Allow functions to have many lines
+    "clippy::missing_errors_doc",       # Allow missing documentation for error return types
+    "clippy::missing_panics_doc",       # Allow missing documentation for panic conditions
+]
+
+deny = [
+    "clippy::unwrap_used",              # Deny usage of unwrap
+    "clippy::expect_used",              # Deny usage of expect
+    "clippy::wildcard_imports",         # Deny wildcard imports
+]
+
+# For example, limit the number of arguments allowed in a function.
+clippy::too_many_arguments_threshold = 7
+clippy::cyclomatic_complexity_threshold = 15
+
+# Customize the behaviour of cognitive complexity lint.
+clippy::cognitive_complexity_threshold = 25
+
+# Restrict the number of allowed lines in a function.
+clippy::function_too_large_threshold = 100
