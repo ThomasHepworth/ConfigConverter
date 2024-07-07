@@ -5,6 +5,14 @@ use thiserror::Error;
 use toml::Value as TomlValue;
 
 #[derive(Error, Debug)]
+pub enum FileReadError {
+    #[error("File read error: {0}")]
+    FileRead(#[from] std::io::Error),
+    #[error("Invalid file path '{invalid}'. Expected a file ending in {expected}")]
+    InvalidExtension { invalid: String, expected: String },
+}
+
+#[derive(Error, Debug)]
 pub enum DecodeError {
     #[error("-------------------------------------\n{0}")]
     Toml(#[from] toml::de::Error),
@@ -12,11 +20,8 @@ pub enum DecodeError {
     Json(#[from] serde_json::Error),
     #[error("-------------------------------------\n{0}")]
     Yaml(#[from] serde_yaml::Error),
-    #[error("File read error: {0}")]
-    FileRead(#[from] std::io::Error),
 }
 
-// TODO: INI, YAML
 #[derive(strum_macros::Display)]
 pub enum Decoder {
     TOML,
@@ -24,15 +29,22 @@ pub enum Decoder {
     YAML,
 }
 
-impl Decoder {
-    fn verify_file_extension(&self, file_path: &str) -> bool {
-        match self {
-            Decoder::TOML => file_path.ends_with(".toml"),
-            Decoder::JSON => file_path.ends_with(".json"),
-            Decoder::YAML => file_path.ends_with(".yaml") || file_path.ends_with(".yml"),
-        }
-    }
+// Factory function to create a Decoder from a file extension
+pub fn file_path_to_decoder(file_path: &str) -> Result<Decoder, FileReadError> {
+    let file_extension: Option<&str> = file_path.split('.').last();
 
+    match file_extension {
+        Some("toml") => Ok(Decoder::TOML),
+        Some("json") => Ok(Decoder::JSON),
+        Some("yaml") | Some("yml") => Ok(Decoder::YAML),
+        _ => Err(FileReadError::InvalidExtension {
+            invalid: file_path.to_string(),
+            expected: String::from("'toml', 'json', 'yaml' or 'yml'."),
+        }),
+    }
+}
+
+impl Decoder {
     pub fn decode_from_str(&self, content: &str) -> Result<JsonValue, DecodeError> {
         match self {
             Decoder::TOML => {
@@ -52,15 +64,8 @@ impl Decoder {
         }
     }
 
-    pub fn decode_file(&self, file_path: &str) -> Result<JsonValue, DecodeError> {
-        if !self.verify_file_extension(file_path) {
-            return Err(DecodeError::FileRead(std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                "Invalid file extension",
-            )));
-        }
-
+    pub fn decode_file(&self, file_path: &str) -> Result<JsonValue, Box<dyn std::error::Error>> {
         let content = fs::read_to_string(file_path)?;
-        self.decode_from_str(&content)
+        Ok(self.decode_from_str(&content)?)
     }
 }
