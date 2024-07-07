@@ -1,4 +1,4 @@
-use config_converter::{DecodeError, Decoder};
+use config_converter::{file_path_to_decoder, DecodeError, Decoder, FileReadError};
 
 #[test]
 fn test_invalid_toml() {
@@ -23,6 +23,56 @@ fn test_invalid_toml() {
     } else {
         panic!("Expected a TOML parse error");
     }
+}
+
+macro_rules! decode_tests {
+    ($($name:ident: ($file_path:expr),)*) => {
+    $(
+        #[test]
+        fn $name() {
+            let erroneous_extension = file_path_to_decoder($file_path);
+
+            let expected_invalid = $file_path.to_string();
+            let expected_extension_message = String::from("'toml', 'json', 'yaml' or 'yml'.");
+
+            match erroneous_extension {
+                Err(FileReadError::InvalidExtension { invalid, expected }) => {
+                    // Invalid and expected are the arguments plugged into our error message
+                    assert_eq!(invalid, expected_invalid);
+                    assert_eq!(expected, expected_extension_message);
+                }
+                _ => panic!("Expected an invalid file path error"),
+            }
+        }
+    )*
+    }
+}
+
+decode_tests! {
+    test_txt: ("test.txt"),
+    testing_ym: ("testing.ym"),
+    test: ("test"),
+    invalid_file: ("invalid.file"),
+    wrong_extension_doc: ("wrong_extension.doc"),
+}
+
+macro_rules! success_tests {
+    ($($name:ident: ($file_path:expr, $expected_decoder:expr),)*) => {
+    $(
+        #[test]
+        fn $name() {
+            let decoder = file_path_to_decoder($file_path).unwrap();
+            assert_eq!(decoder, $expected_decoder);
+        }
+    )*
+    }
+}
+
+success_tests! {
+    toml_file: ("test_file.toml", Decoder::TOML),
+    yaml_file: ("test_file.yaml", Decoder::YAML),
+    yml_file: ("test_file.yml", Decoder::YAML),
+    json_file: ("test_file.json", Decoder::JSON),
 }
 
 macro_rules! decode_tests {
