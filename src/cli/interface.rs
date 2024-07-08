@@ -6,46 +6,40 @@ use clap::{Parser, Subcommand};
 /// ensuring data integrity and preventing accidental data loss.
 #[derive(Parser)]
 #[command(
-    name = "config_converter",
+    name = "ConfigConverter",
     about = "Transforms configuration files between different formats.",
     version = "1.0"
 )]
 pub struct CLI {
+    /// Input file path
+    #[arg(required = true)]
+    pub input: String,
+
+    /// Output file path
+    #[arg(short, long)]
+    pub write: Option<String>,
+
     #[command(subcommand)]
     pub converters: Converters,
 }
 
-#[derive(Parser)]
-pub struct InputOutput {
-    /// Input file path
-    #[arg(required = true)]
-    pub input: String,
-    /// Output file path
-    #[arg(short, long)]
-    pub write: Option<String>,
-}
-
 #[derive(Subcommand)]
 pub enum Converters {
-    ToTOML(InputOutput),
-    ToJSON(InputOutput),
-    ToYAML(InputOutput),
+    ToTOML,
+    ToJSON,
+    ToYAML,
 }
 
-impl Converters {
+impl CLI {
     pub fn get_encoder(&self) -> Encoder {
-        match self {
-            Converters::ToTOML(_) => Encoder::TOML,
-            Converters::ToJSON(_) => Encoder::JSON,
-            Converters::ToYAML(_) => Encoder::YAML,
+        match self.converters {
+            Converters::ToTOML => Encoder::TOML,
+            Converters::ToJSON => Encoder::JSON,
+            Converters::ToYAML => Encoder::YAML,
         }
     }
 
-    pub fn get_input_output(&self) -> &InputOutput {
-        match self {
-            Converters::ToTOML(input_output) => input_output,
-            Converters::ToJSON(input_output) => input_output,
-            Converters::ToYAML(input_output) => input_output,
-        }
+    pub fn get_input_output(&self) -> (&String, &Option<String>) {
+        (&self.input, &self.write)
     }
 }
