@@ -1,0 +1,73 @@
+name: Create Release
+
+on:
+  workflow_run:
+    workflows: ["Build and upload binaries"]
+    types:
+      - completed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Release Assets (Linux)
+        uses: actions/download-artifact@v3
+        with:
+          name: ConfigConverter-x86_64-unknown-linux-musl
+          path: ./dist/linux
+
+      - name: Download Release Assets (macOS)
+        uses: actions/download-artifact@v3
+        with:
+          name: ConfigConverter-x86_64-apple-darwin
+          path: ./dist/macos
+
+      - name: Download Release Assets (Windows)
+        uses: actions/download-artifact@v3
+        with:
+          name: ConfigConverter-x86_64-pc-windows-gnu
+          path: ./dist/windows
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Linux Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/linux/ConfigConverter
+          asset_name: config_converter-x86_64-unknown-linux-musl
+          asset_content_type: application/octet-stream
+
+      - name: Upload macOS Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/macos/ConfigConverter
+          asset_name: config_converter-x86_64-apple-darwin
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/windows/ConfigConverter.exe
+          asset_name: config_converter-x86_64-pc-windows-gnu
+          asset_content_type: application/octet-stream
