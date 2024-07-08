@@ -32,8 +32,6 @@ pub fn run_cli() -> Result<String, Box<dyn Error>> {
     let decoder =
         file_path_to_decoder(&io.input).map_err(|e| CliError::DecoderError(e.to_string()))?;
     let encoder = cli_args.converters.get_encoder();
-    println!("{}", encoder);
-    println!("{}", decoder);
 
     let user_message = create_conversion_message(&decoder.to_string(), &encoder.to_string(), &io);
 
