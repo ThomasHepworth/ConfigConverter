@@ -22,7 +22,6 @@ pub enum DecodeError {
     Yaml(#[from] serde_yaml::Error),
 }
 
-
 #[derive(strum_macros::Display, Debug, PartialEq)]
 pub enum Decoder {
     TOML,

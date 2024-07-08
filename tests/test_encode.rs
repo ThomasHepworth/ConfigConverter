@@ -1,6 +1,6 @@
-use config_converter::Encoder;
 use std::fs;
 use tempfile::NamedTempFile;
+use ConfigConverter::Encoder;
 
 #[test]
 fn test_encode_to_toml_str() {
