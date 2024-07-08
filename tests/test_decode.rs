@@ -1,4 +1,4 @@
-use config_converter::{file_path_to_decoder, DecodeError, Decoder, FileReadError};
+use ConfigConverter::{file_path_to_decoder, DecodeError, Decoder, FileReadError};
 
 #[test]
 fn test_invalid_toml() {
