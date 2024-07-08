@@ -1,4 +1,3 @@
-use crate::decode::Decoder;
 use crate::encode::Encoder;
 use clap::{Parser, Subcommand};
 
@@ -28,45 +27,25 @@ pub struct InputOutput {
 
 #[derive(Subcommand)]
 pub enum Converters {
-    // TOML CONVERTERS //
-    /// Convert from TOML to JSON.
-    TomlToJson(InputOutput),
-    /// Convert from TOML to YAML.
-    TomlToYaml(InputOutput),
-
-    // JSON CONVERTERS //
-    /// Convert from JSON to TOML.
-    JsonToToml(InputOutput),
-    /// Convert from JSON to YAML.
-    JsonToYaml(InputOutput),
-
-    // YAML CONVERTERS //
-    /// Convert from YAML JSON.
-    YamlToJson(InputOutput),
-    /// Convert from YAML TOML.
-    YamlToToml(InputOutput),
+    ToTOML(InputOutput),
+    ToJSON(InputOutput),
+    ToYAML(InputOutput),
 }
 
 impl Converters {
-    pub fn conversion_types(&self) -> (Decoder, Encoder) {
+    pub fn get_encoder(&self) -> Encoder {
         match self {
-            Converters::TomlToJson(_) => (Decoder::TOML, Encoder::JSON),
-            Converters::TomlToYaml(_) => (Decoder::TOML, Encoder::YAML),
-            Converters::JsonToToml(_) => (Decoder::JSON, Encoder::TOML),
-            Converters::JsonToYaml(_) => (Decoder::JSON, Encoder::YAML),
-            Converters::YamlToJson(_) => (Decoder::YAML, Encoder::JSON),
-            Converters::YamlToToml(_) => (Decoder::YAML, Encoder::TOML),
+            Converters::ToTOML(_) => Encoder::TOML,
+            Converters::ToJSON(_) => Encoder::JSON,
+            Converters::ToYAML(_) => Encoder::YAML,
         }
     }
 
     pub fn get_input_output(&self) -> &InputOutput {
         match self {
-            Converters::TomlToJson(input_output) => input_output,
-            Converters::TomlToYaml(input_output) => input_output,
-            Converters::JsonToToml(input_output) => input_output,
-            Converters::JsonToYaml(input_output) => input_output,
-            Converters::YamlToJson(input_output) => input_output,
-            Converters::YamlToToml(input_output) => input_output,
+            Converters::ToTOML(input_output) => input_output,
+            Converters::ToJSON(input_output) => input_output,
+            Converters::ToYAML(input_output) => input_output,
         }
     }
 }
